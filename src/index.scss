@@ -1,0 +1,40 @@
+@use "themes/dark-theme";
+@use "themes/light-theme";
+@use "themes/common";
+
+@media (prefers-color-scheme: dark) {
+    .theme-default {
+        @include dark-theme.vars;
+    }
+}
+
+@media not all and (prefers-color-scheme: dark) {
+    .theme-default {
+        @include light-theme.vars;
+    }
+}
+
+html {
+    @include common.vars;
+}
+
+.theme-dark {
+    @include dark-theme.vars;
+}
+
+.theme-light {
+    @include light-theme.vars;
+}
+
+body {
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.reset--button {
+    border: unset;
+    font: unset;
+    color: unset;
+    background: unset;
+}
