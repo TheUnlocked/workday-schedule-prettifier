@@ -8,18 +8,26 @@ import ScheduleView from './ScheduleView';
 import { Stacked } from './Utils';
 import { saveAs } from 'file-saver';
 import { DateTime } from 'luxon';
+import { useWindowSize } from './useWindowSize';
 
 const AppWrapper = styled.div`
+    background-color: var(--background-color);
+    font-family: var(--font-family);
+    font-size: var(--font-size);
+    color: var(--text);
+    overflow: hidden;
+`;
+
+const AppContent = styled.div<{ $scale: number }>`
     padding: 2em;
     min-height: calc(100vh - 4em);
     display: flex;
     flex-direction: column;
     gap: 2em;
-    
-    background-color: var(--background-color);
-    font-family: var(--font-family);
-    font-size: var(--font-size);
-    color: var(--text);
+    min-width: 970px;
+
+    transform-origin: top left;
+    ${props => props.$scale > 1 ? '' : `transform: scale(${props.$scale});` }
 `;
 
 function App() {
@@ -111,13 +119,17 @@ function App() {
         });
     }
 
+    const [width] = useWindowSize();
+
     return (
         <AppWrapper id="app" className="theme-default">
-            <Stacked $horizontal $gap="1em">
-                <FileInputButton onSelected={fileSelectedHandler} />
-                {schedule ? <Button onClick={downloadCalendar}>Download as iCal</Button> : null}
-            </Stacked>
-            {schedule ? <ScheduleView courses={schedule} /> : null}
+            <AppContent $scale={width / 970}>
+                <Stacked $horizontal $gap="1em">
+                    <FileInputButton onSelected={fileSelectedHandler} />
+                    {schedule ? <Button onClick={downloadCalendar}>Download as iCal</Button> : null}
+                </Stacked>
+                {schedule ? <ScheduleView courses={schedule} /> : null}
+            </AppContent>
         </AppWrapper>
     );
 }

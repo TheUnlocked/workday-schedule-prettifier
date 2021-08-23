@@ -57,6 +57,7 @@ const DayContainer = styled(Stacked)<{ $position: DayOfTheWeek }>`
 
 const HoursContainer = styled(Stacked)`
     border: 1px solid var(--primary-color);
+    width: 5em;
     border-right: 0;
     border-radius: 4px 0 0 4px;
     overflow: hidden;
