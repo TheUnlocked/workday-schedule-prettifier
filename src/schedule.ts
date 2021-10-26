@@ -15,26 +15,62 @@ export interface Course {
     endDate: XLSX.SSF.SSF$Date;
 }
 
+const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+function* colGen() {
+    function* colGenL(depth: number): Iterable<string> {
+        if (depth === 0) {
+            yield '';
+            return;
+        }
+        for (const a of alphabet) {
+            for (const x of colGenL(depth - 1)) {
+                yield a + x;
+            }
+        }
+    }
+    let len = 1;
+    while (true) {
+        yield* colGenL(len++);
+    }
+}
+
+const headerFieldMap = {
+    '': 'fullDesc',
+    'Course Listing': 'courseName',
+    'Credits': 'credits',
+    'Grading Basis': 'gradingBasis',
+    'Section': 'section',
+    'Instructional Format': 'format',
+    'Delivery Mode': 'deliveryMode',
+    'Meeting Patterns': 'meetingPatterns',
+    'Registration Status': 'registrationStatus',
+    'Instructor': 'instructor',
+    'Start Date': 'startDate',
+    'End Date': 'endDate'
+} as const;
+
 export function parseSchedule(data: Uint8Array) {
     const workbook = XLSX.read(data, { type: 'array' });
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    
-    const courseFields = [
-        'fullDesc',
-        'courseName',
-        'credits',
-        'gradingBasis',
-        'section',
-        'format',
-        'meetingPatterns',
-        'registrationStatus',
-        'instructor',
-        'startDate',
-        'endDate'
-    ] as const;
 
+    const courseFields = [];
+    for (const col of colGen()) {
+        if (col === 'A') {
+            courseFields.push('fullDesc');
+            continue;
+        }
+
+        const cell = sheet[col + '3']?.v;
+        if (!cell) {
+            break;
+        }
+        if (cell in headerFieldMap) {
+            courseFields.push(headerFieldMap[cell as keyof typeof headerFieldMap]);
+        }
+    }
+    
     const contents = XLSX.utils.sheet_to_json(sheet, {
-        range: 'A4-K999',
+        range: 'A4-AA999',
         header: courseFields as any
     }) as { [Key in typeof courseFields[number]]: string }[];
 
